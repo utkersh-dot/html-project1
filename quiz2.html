@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Residency Determination Quiz</title>
+  <style>
+    :root {
+      --primary: #6793AC;
+      --secondary: #114AB1;
+      --accent: #E4580B;
+      --bg-light: #A5D6A7;
+      --container-bg: #81C784;
+      --text: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text);
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: var(--container-bg);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: flex-end;
+      z-index: 3;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #navSelect {
+      padding: 5px;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .symbol {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      transform-origin: center;
+    }
+    #quiz-container {
+      background: var(--container-bg);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      margin: auto;
+      top: 55%;
+      transform: translateY(-50%);
+    }
+    #did-you-know {
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 250px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      z-index: 2;
+    }
+    #did-you-know h4 { margin: 0 0 10px; color: var(--secondary); font-size: 1rem; }
+    h1 { margin-top: 0; text-align: center; color: var(--secondary); }
+    .question { margin: 20px 0; }
+    .question label { display: block; margin-bottom: 8px; cursor: pointer; }
+    .question input[type="radio"] { margin-right: 8px; }
+    button {
+      background: var(--primary);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px 0 0;
+    }
+    button:hover { background: var(--secondary); }
+    #result { text-align: center; font-size: 1.2em; color: var(--accent); margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <select id="navSelect">
+      <option value="">Menu</option>
+      <option value="about">About Us</option>
+      <option value="knowmore">Know More</option>
+    </select>
+  </header>
+  <div id="did-you-know">
+    <h4>Did You Know</h4>
+    <p id="dyk-text">Staying in India for 182 days in a financial year makes you a tax resident</p>
+  </div>
+  <div id="quiz-container">
+    <h1>Residency Quiz</h1>
+    <div id="step"></div>
+    <div id="result"></div>
+  </div>
+  <script>
+    // Navigation dropdown
+    document.getElementById('navSelect').addEventListener('change', function() {
+      if (this.value === 'about') window.location.href = 'about.html';
+      if (this.value === 'knowmore') window.open('https://taxguru.in/income-tax/residence-india-section-6-income-tax-act-1961.html#:~:text=Section%206%20of%20Income%20Tax%20Act%2C%201961%20An,365%20days%20or%20more%20in%20Preceding%204%20years.');
+    });
+    // Generate non-overlapping background symbols
+    (function() {
+      const symbols = ['₹', '📍', '🗺️', '31 March', '1 Aug'];
+      const count = 80, placed = [], maxTries = 100;
+      for (let i = 0; i < count; i++) {
+        let tries = 0, placedFlag = false;
+        while (tries < maxTries && !placedFlag) {
+          const sym = symbols[Math.floor(Math.random()*symbols.length)];
+          const size = Math.random()*2 + 0.5, rotation = Math.random()*360, scale = Math.random()*1.5+0.5;
+          const fontSize = size*16, width = (sym.length*fontSize*0.6)*scale, height = fontSize*scale;
+          const x = Math.random()*(window.innerWidth - width), y = Math.random()*(window.innerHeight - height);
+          const rect = { x, y, width, height };
+          const overlap = placed.some(p => !(rect.x+rect.width < p.x || p.x+p.width < rect.x || rect.y+rect.height < p.y || p.y+p.height < rect.y));
+          if (!overlap) {
+            const span = document.createElement('span'); span.className='symbol'; span.textContent=sym;
+            span.style.fontSize=size+'rem'; span.style.top=y+'px'; span.style.left=x+'px';
+            span.style.transform=`rotate(${rotation}deg) scale(${scale})`;
+            document.body.appendChild(span); placed.push(rect); placedFlag = true;
+          }
+          tries++;
+        }
+      }
+    })();
+    // Did You Know tips
+    const tips = {
+      Q1a: 'Staying in India for 182 days in a financial year makes you a tax resident',
+      Q1b: 'There is a special 182-day rule for Non-Resident Indians and Persons of Indian Origin',
+      Q2a: 'Missing the 182-day mark by just one day can change your tax status',
+      Q2b: 'The 60-day residency test combined with 365 days over the previous four years determines tax status',
+      Q3: 'Resident and Ordinarily Resident individuals pay tax on worldwide income',
+      Q4: 'Resident but Not Ordinarily Resident status is available to returning Non-Resident Indians with prior non-residence',
+      Q5: 'Residents but Not Ordinarily Residents do not pay tax on foreign income received abroad'
+    };
+    // Quiz logic with auto-advance
+    const steps = [];
+    function createRadio(name, text, value) {
+      return `<label><input type="radio" name="${name}" value="${value}" /> ${text}</label>`;
+    }
+    function showDYK(id) { document.getElementById('dyk-text').textContent = tips[id] || ''; }
+    steps.push({ id:'Q1a', html:`<div class="question"><p>Do you work as crew on a merchant ship or cruise liner?</p>${createRadio('Q1a','Yes','yes')}${createRadio('Q1a','No','no')}</div>`, next: ans=>ans==='yes'?'Q1b':'Q2a' });
+    steps.push({ id:'Q1b', html:`<div class="question"><p>In the last financial year, were you outside India for 184 days or more?</p>${createRadio('Q1b','Yes','yes')}${createRadio('Q1b','No','no')}</div>`, next: ans=>ans==='yes'?'result_NRI':'Q2a' });
+    steps.push({ id:'Q2a', html:`<div class="question"><p>Did you spend at least 182 days in India during the last financial year?</p>${createRadio('Q2a','Yes','yes')}${createRadio('Q2a','No','no')}</div>`, next: ans=>ans==='yes'?'Q3':'Q2b' });
+    steps.push({ id:'Q2b', html:`<div class="question"><p>Did you spend at least 60 days in India last year AND at least 365 days in the four years before that?</p>${createRadio('Q2b','Yes','yes')}${createRadio('Q2b','No','no')}</div>`, next: ans=>ans==='yes'?'Q3':'result_NRI' });
+    steps.push({ id:'Q3', html:`<div class="question"><p>Are you an Indian citizen or Person of Indian Origin earning more than ₹15 lakh from India-sourced income and not taxable elsewhere?</p>${createRadio('Q3','Yes','yes')}${createRadio('Q3','No','no')}</div>`, next: ans=>ans==='yes'?'result_DEEMED':'Q4' });
+    steps.push({ id:'Q4', html:`<div class="question"><p>In the 10 years before last year, were you a Non-Resident for at least 9 of those years?</p>${createRadio('Q4','Yes','yes')}${createRadio('Q4','No','no')}</div>`, next: ans=>ans==='yes'?'result_RNOR':'Q5' });
+    steps.push({ id:'Q5', html:`<div class="question"><p>Across the 7 years before last year, did you spend 729 days or fewer in India?</p>${createRadio('Q5','Yes','yes')}${createRadio('Q5','No','no')}</div>`, next: ans=>ans==='yes'?'result_RNOR':'result_ROR' });
+    function showStep(id) {
+      showDYK(id);
+      const step = steps.find(s=>s.id===id);
+      document.getElementById('step').innerHTML = step.html;
+      // attach auto-advance on change
+      document.querySelectorAll(`#step input[name="${id}"]`).forEach(radio => {
+        radio.addEventListener('change', () => {
+          const next = step.next(radio.value);
+          if (next.startsWith('result_')) return showResult(next.replace('result_',''));
+          showStep(next);
+        });
+      });
+    }
+    function showResult(code) {
+      document.getElementById('did-you-know').style.display = 'none';
+      document.getElementById('step').innerHTML = '';
+      const labels = { result_NRI:'Non-Resident (NRI)', result_DEEMED:'Deemed Resident', result_RNOR:'Resident but Not Ordinarily Resident (RNOR)', result_ROR:'Resident and Ordinarily Resident (ROR)' };
+      document.getElementById('result').innerHTML = `Your status: ${labels['result_'+code]}<br/><button id="restartBtn">Start Again</button><button id="otherBtn">Other Site</button>`;
+      document.getElementById('restartBtn').onclick = () => location.reload();
+      document.getElementById('otherBtn').onclick = () => window.open('#');
+    }
+    showStep('Q1a');
+  </script>
+</body>
+</html>
